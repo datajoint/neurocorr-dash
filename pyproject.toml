@@ -13,8 +13,7 @@ license-files = ["LICENSE"]
 authors = [{name = "DataJoint", email = "support@datajoint.com"}]
 dependencies = [
     # reads <npy@> values; the fix for the default store is on master, after 2.3.4
-    "datajoint[postgres] @ git+https://github.com/datajoint/datajoint-python.git@master",
-    "s3fs",
+    "datajoint[postgres,s3] @ git+https://github.com/datajoint/datajoint-python.git@master",
     "dash>=3.0",
     "plotly>=6.0",
     "pandas",
