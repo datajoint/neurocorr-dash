@@ -1,0 +1,7 @@
+# Runs the dashboard on http://localhost:8052 against the database named in .env.
+services:
+  app:
+    build: .
+    env_file: .env
+    ports:
+      - "127.0.0.1:8052:5000"
