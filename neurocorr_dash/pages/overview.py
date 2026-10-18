@@ -20,7 +20,7 @@ def table(df):
     )
 
 
-def layout():
+def layout(**_query):
     try:
         sites = data.sites()
         progress = data.progress()

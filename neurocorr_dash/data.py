@@ -2,7 +2,8 @@
 Read the neurocorr pipeline.
 
 The dashboard reads the schema from the database (``dj.VirtualModule``), so it needs no
-pipeline code. Schema names take the prefix in ``DATABASE_PREFIX``.
+pipeline code. Schema names take the prefix in ``DATABASE_PREFIX``. Arrays are ``<npy@>``
+values in the pipeline's object store (``DJ_STORES``), loaded with ``np.asarray``.
 """
 
 from __future__ import annotations
@@ -47,7 +48,7 @@ def sites() -> pd.DataFrame:
     rows = rows.merge(active, how="left")
     sample = c.CovMatrix & {"method": 0, "k": 1, "nfolds": 1}
     keys, matrices = sample.to_arrays("corr_matrix", include_key=True)
-    mean_corr = {k["aod_scan_start_time"]: mean_offdiagonal(R) for k, R in zip(keys, matrices)}
+    mean_corr = {k["aod_scan_start_time"]: mean_offdiagonal(np.asarray(R)) for k, R in zip(keys, matrices)}
     rows["mean_corr"] = rows["aod_scan_start_time"].map(mean_corr)
     rows["site"] = rows["aod_scan_start_time"].map(site_label)
     rows["analyzed"] = rows["ncells"] > 100
@@ -92,4 +93,4 @@ def correlation_matrix(aod_scan_start_time: int, method: int = 0) -> tuple[np.nd
     key = {"aod_scan_start_time": aod_scan_start_time}
     R = (c.CovMatrix & key & {"method": method, "k": 1, "nfolds": 1}).fetch1("corr_matrix")
     xyz, selection = (c.Traces * c.ActiveCells & key).fetch1("cell_xyz", "selection")
-    return R, np.asarray(xyz)[np.asarray(selection, dtype=bool)]
+    return np.asarray(R), np.asarray(xyz)[np.asarray(selection, dtype=bool)]

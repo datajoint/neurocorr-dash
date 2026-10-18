@@ -45,6 +45,7 @@ From inside a container, a database on the host is at `host.docker.internal`.
 | `DJ_HOST`, `DJ_PORT`, `DJ_BACKEND` | the database (`postgresql` or `mysql`) |
 | `DJ_USER`, `DJ_PASS` | credentials with read access to the pipeline's schema |
 | `DATABASE_PREFIX` | the prefix of the pipeline's schema names, if it was declared with one |
+| `DJ_STORES` | the pipeline's object store, as JSON, where its `<npy@>` arrays are |
 | `DASH_REQUESTS_PATHNAME_PREFIX`, `DASH_ROUTES_PATHNAME_PREFIX` | serve the app under a path, behind a proxy |
 
 ## Development

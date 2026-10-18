@@ -8,7 +8,7 @@ dash.register_page(__name__, path="/site", name="Site", order=2)
 EXAMPLE_SITE = 3453748112031  # the paper's example site (Fig 3)
 
 
-def layout(scan=None):
+def layout(scan=None, **_query):
     try:
         sites = data.sites()
     except Exception as error:

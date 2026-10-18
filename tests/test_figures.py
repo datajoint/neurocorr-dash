@@ -37,3 +37,17 @@ def test_loss_differences_pairs_sites():
 def test_loss_differences_without_the_reference_is_empty():
     losses = pd.DataFrame({"site": [1], "method": [0], "cv_loss": [0.6]})
     assert len(figures.loss_differences(losses, reference=10).data) == 0
+
+
+def test_layouts_accept_extra_query_parameters():
+    """A host page may add query parameters (a token, a theme); Dash passes them to layout()."""
+    import inspect
+
+    import dash
+
+    import neurocorr_dash.app  # noqa: F401  registers the pages
+
+    layouts = [page["layout"] for page in dash.page_registry.values()]
+    assert len(layouts) == 4
+    for layout in layouts:
+        assert any(p.kind is p.VAR_KEYWORD for p in inspect.signature(layout).parameters.values())

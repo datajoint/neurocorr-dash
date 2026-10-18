@@ -14,7 +14,7 @@ COLUMNS = {
 }
 
 
-def layout():
+def layout(**_query):
     try:
         sites = data.sites()
     except Exception as error:

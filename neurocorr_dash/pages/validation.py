@@ -6,7 +6,7 @@ from neurocorr_dash import data, figures
 dash.register_page(__name__, path="/validation", name="Validation", order=3)
 
 
-def layout():
+def layout(**_query):
     try:
         losses = data.validation_losses()
     except Exception as error:
