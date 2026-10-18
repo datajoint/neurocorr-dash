@@ -43,8 +43,13 @@ def site_label(aod_scan_start_time: int) -> int:
 def sites() -> pd.DataFrame:
     """One row per correlation set: the cells recorded and kept, and the mean sample correlation."""
     c = covest()
-    rows = (c.Traces & {"high_repeats": True}).proj("nneurons", "ndirs", "bin_ms").to_pandas().reset_index()
-    active = c.ActiveCells.proj("ncells").to_pandas().reset_index()
+    rows = (
+        (c.TrialTraceSet & {"high_repeats": True})
+        .proj("nneurons", "ndirs", "bin_ms")
+        .to_pandas()
+        .reset_index()
+    )
+    active = c.CellSelection.proj("ncells").to_pandas().reset_index()
     rows = rows.merge(active, how="left")
     sample = c.CovMatrix & {"method": 0, "k": 1, "nfolds": 1}
     keys, matrices = sample.to_arrays("corr_matrix", include_key=True)
@@ -76,7 +81,7 @@ def progress() -> pd.DataFrame:
     """Per method: the estimates computed, of the 11 per analyzed site (10 folds and all trials)."""
     c = covest()
     done = c.CovMatrix.proj().to_pandas().reset_index().groupby("method").size()
-    analyzed = (c.Traces * c.ActiveCells & "ncells > 100").proj("ndirs").to_pandas()
+    analyzed = (c.TrialTraceSet * c.CellSelection & "ncells > 100").proj("ndirs").to_pandas()
     methods = c.Method.proj("regularization", "condition_idx").to_pandas().reset_index()
     methods["name"] = methods["method"].map(METHOD_NAMES)
     methods["computed"] = methods["method"].map(done).fillna(0).astype(int)
@@ -92,5 +97,5 @@ def correlation_matrix(aod_scan_start_time: int, method: int = 0) -> tuple[np.nd
     c = covest()
     key = {"aod_scan_start_time": aod_scan_start_time}
     R = (c.CovMatrix & key & {"method": method, "k": 1, "nfolds": 1}).fetch1("corr_matrix")
-    xyz, selection = (c.Traces * c.ActiveCells & key).fetch1("cell_xyz", "selection")
+    xyz, selection = (c.TrialTraceSet * c.CellSelection & key).fetch1("cell_xyz", "selection")
     return np.asarray(R), np.asarray(xyz)[np.asarray(selection, dtype=bool)]
