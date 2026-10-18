@@ -123,3 +123,65 @@ def loss_differences(losses: pd.DataFrame, reference: int) -> go.Figure:
         showlegend=False,
     )
     return fig
+
+
+def fig3e(R: np.ndarray, site: int) -> go.Figure:
+    """Fig 3 E: the sample noise-correlation matrix of a site, on a fixed ±0.25 scale."""
+    off = np.array(R, dtype=float)
+    np.fill_diagonal(off, np.nan)
+    n = len(off)
+    fig = go.Figure(
+        go.Heatmap(
+            z=off,
+            x=np.arange(1, n + 1),
+            y=np.arange(1, n + 1),
+            colorscale="RdBu",
+            reversescale=True,
+            zmin=-0.25,
+            zmax=0.25,
+            colorbar={"title": "r", "tickvals": [-0.25, 0, 0.25]},
+            hovertemplate="cells %{y} and %{x}<br>r = %{z:.3f}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        **LAYOUT, title=f"E. Sample correlations, site {site} ({n} cells)", height=520, width=560
+    )
+    fig.update_yaxes(autorange="reversed", scaleanchor="x", title="cell number")
+    fig.update_xaxes(title="cell number")
+    return fig
+
+
+def fig3f(R: np.ndarray, site: int) -> go.Figure:
+    """Fig 3 F: the distribution of a site's pairwise sample correlations, with its mean."""
+    values = np.asarray(R)[np.triu_indices_from(np.asarray(R), 1)]
+    mean = float(values.mean())
+    fig = go.Figure(
+        go.Histogram(
+            x=values,
+            xbins={"start": -0.15, "end": 0.3, "size": 0.002},
+            marker={"color": "#9ea3c4", "line": {"color": "#1f2a5c", "width": 0.3}},
+            hovertemplate="r %{x}<br>%{y} pairs<extra></extra>",
+        )
+    )
+    fig.add_vline(x=0, line={"color": "black", "width": 1})
+    fig.add_vline(x=mean, line={"color": "red", "width": 3})
+    fig.add_annotation(
+        x=mean,
+        y=1,
+        yref="paper",
+        text=f"mean {mean:.4f}",
+        showarrow=False,
+        xanchor="left",
+        font={"color": "red"},
+    )
+    fig.update_layout(
+        **LAYOUT,
+        title=f"F. Distribution of {len(values):,} correlations",
+        height=520,
+        width=560,
+        bargap=0,
+        showlegend=False,
+    )
+    fig.update_xaxes(title="correlations", range=[-0.1, 0.21])
+    fig.update_yaxes(title="cell pairs")
+    return fig

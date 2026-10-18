@@ -48,6 +48,17 @@ def test_layouts_accept_extra_query_parameters():
     import neurocorr_dash.app  # noqa: F401  registers the pages
 
     layouts = [page["layout"] for page in dash.page_registry.values()]
-    assert len(layouts) == 4
+    assert len(layouts) == 5
     for layout in layouts:
         assert any(p.kind is p.VAR_KEYWORD for p in inspect.signature(layout).parameters.values())
+
+
+def test_fig3_panels():
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((500, 30)) + 0.3 * rng.standard_normal((500, 1))
+    R = np.corrcoef(X.T)
+    e = figures.fig3e(R, 2031)
+    assert e.data[0].zmin == -0.25 and np.isnan(np.diag(np.array(e.data[0].z, dtype=float))).all()
+    f = figures.fig3f(R, 2031)
+    assert len(f.data[0].x) == 30 * 29 // 2
+    assert "2031" in e.layout.title.text
