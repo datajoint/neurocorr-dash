@@ -6,11 +6,9 @@ import pandas as pd
 from neurocorr_dash import data, figures
 
 
-def test_site_labels():
-    assert data.paper_site(3453748112031) == 2031
-    assert data.site_name(8, 4) == "8-4"
-    row = pd.Series({"session": 8, "site": 4, "paper_site": 2031})
-    assert data.site_label(row) == "session 8, site 4 (2031 in the paper)"
+def test_site_label():
+    row = pd.Series({"session": 8, "site": 2031})
+    assert data.site_label(row) == "session 8, site 2031"
 
 
 def test_heatmap_blanks_the_diagonal():
@@ -25,7 +23,7 @@ def test_sites_scatter_shows_analyzed_sites_only():
         {
             "ncells": [150, 90],
             "mean_corr": [0.02, 0.01],
-            "name": ["8-4", "8-5"],
+            "name": ["2031", "4062"],
             "analyzed": [True, False],
         }
     )
@@ -65,8 +63,8 @@ def test_fig3_panels():
     rng = np.random.default_rng(0)
     X = rng.standard_normal((500, 30)) + 0.3 * rng.standard_normal((500, 1))
     R = np.corrcoef(X.T)
-    e = figures.fig3e(R, "session 8, site 4")
+    e = figures.fig3e(R, "session 8, site 2031")
     assert e.data[0].zmin == -0.25 and np.isnan(np.diag(np.array(e.data[0].z, dtype=float))).all()
-    f = figures.fig3f(R, "session 8, site 4")
+    f = figures.fig3f(R, "session 8, site 2031")
     assert len(f.data[0].x) == 30 * 29 // 2
-    assert "session 8, site 4" in e.layout.title.text
+    assert "session 8, site 2031" in e.layout.title.text

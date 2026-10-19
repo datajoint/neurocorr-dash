@@ -5,7 +5,7 @@ from neurocorr_dash import data, figures
 
 dash.register_page(__name__, path="/site", name="Site", order=2)
 
-EXAMPLE_SITE = 2031  # the paper's example site (Fig 3), by its number in the paper
+EXAMPLE_SITE = 2031  # the example site of the paper's Fig 3, numbered as the original code numbers it
 
 
 def layout(site=None, **_query):
@@ -18,9 +18,9 @@ def layout(site=None, **_query):
         {"label": f"{data.site_label(row)}, {row.ncells} cells", "value": int(row.trace_set)}
         for row in analyzed.itertuples()
     ]
-    # ?site=8-4: session 8, site 4
+    # ?site=2031: the site numbered 2031 in the original code
     by_name = dict(zip(analyzed["name"], analyzed["trace_set"]))
-    example = analyzed.loc[analyzed["paper_site"] == EXAMPLE_SITE, "trace_set"]
+    example = analyzed.loc[analyzed["site"] == EXAMPLE_SITE, "trace_set"]
     value = (
         int(by_name[site])
         if site in by_name

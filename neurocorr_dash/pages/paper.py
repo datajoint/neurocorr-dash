@@ -5,7 +5,7 @@ from neurocorr_dash import data, figures
 
 dash.register_page(__name__, path="/figures", name="Figures", order=4)
 
-EXAMPLE_SITE = 2031  # the paper's example site (Fig 3), by its number in the paper
+EXAMPLE_SITE = 2031  # the example site of the paper's Fig 3, numbered as the original code numbers it
 
 
 def layout(**_query):
@@ -18,7 +18,7 @@ def layout(**_query):
         {"label": f"{data.site_label(row)}, {row.ncells} cells", "value": int(row.trace_set)}
         for row in ready.itertuples()
     ]
-    example = ready.loc[ready["paper_site"] == EXAMPLE_SITE, "trace_set"]
+    example = ready.loc[ready["site"] == EXAMPLE_SITE, "trace_set"]
     value = int(example.iloc[0]) if len(example) else next((o["value"] for o in options), None)
     return html.Div(
         [
@@ -26,8 +26,8 @@ def layout(**_query):
             html.P(
                 "The figures of Yatsenko et al. (2015), drawn from the pipeline's results. "
                 "Fig 3 E and F: the sample noise correlations of one site (method 0, all trials) "
-                "and their distribution. The paper's example site is 2031 (292 cells, mean 0.020), "
-                "session 8, site 4 here.",
+                "and their distribution. The paper's example site (292 cells, mean 0.020) is site 2031, "
+                "as the original code numbers it, in session 8.",
                 className="lede",
             ),
             html.Div(

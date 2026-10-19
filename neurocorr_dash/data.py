@@ -35,19 +35,9 @@ def covest():
     return dj.VirtualModule("covest", PREFIX + "covest")
 
 
-def paper_site(aod_scan_start_time: int) -> int:
-    """The site's number in the original code and figures: its scan start time mod 10000."""
-    return int(aod_scan_start_time) % 10000
-
-
-def site_name(session: int, site: int) -> str:
-    """A site's short name in figures: its session and its number within it, as in "8-4"."""
-    return f"{int(session)}-{int(site)}"
-
-
 def site_label(row) -> str:
-    """A site as the dashboard names it: its session and number, and its number in the paper."""
-    return f"session {row.session}, site {row.site} ({row.paper_site} in the paper)"
+    """A site as the dashboard names it: its session, and its number in the original code."""
+    return f"session {row.session}, site {row.site}"
 
 
 def sites() -> pd.DataFrame:
@@ -55,7 +45,7 @@ def sites() -> pd.DataFrame:
     c = covest()
     rows = (
         ((c.TrialTraceSet & {"high_repeats": True}) * c.Site)
-        .proj("session", "site", "nneurons", "ndirs", "bin_ms", "aod_scan_start_time")
+        .proj("session", "site", "nneurons", "ndirs", "bin_ms")
         .to_pandas()
         .reset_index()
     )
@@ -65,8 +55,7 @@ def sites() -> pd.DataFrame:
     keys, matrices = sample.to_arrays("corr_matrix", include_key=True)
     mean_corr = {k["trace_set"]: mean_offdiagonal(np.asarray(R)) for k, R in zip(keys, matrices)}
     rows["mean_corr"] = rows["trace_set"].map(mean_corr)
-    rows["paper_site"] = rows["aod_scan_start_time"].map(paper_site)
-    rows["name"] = [site_name(a, b) for a, b in zip(rows["session"], rows["site"])]
+    rows["name"] = rows["site"].astype(str)
     rows["analyzed"] = rows["ncells"] > 100
     return rows.sort_values(["session", "site"]).reset_index(drop=True)
 
@@ -84,7 +73,7 @@ def validation_losses() -> pd.DataFrame:
     cv = cv.to_pandas().reset_index()
     if cv.empty:
         return pd.DataFrame(columns=["site", "method", "cv_loss", "folds"])
-    cv["site"] = [site_name(a, b) for a, b in zip(cv["session"], cv["site"])]
+    cv["site"] = cv["site"].astype(str)  # unique across the sessions of this study
     grouped = cv.groupby(["site", "method"])["cv_loss"]
     losses = grouped.mean().to_frame("cv_loss").join(grouped.count().to_frame("folds")).reset_index()
     return losses[losses["folds"] == 10]
