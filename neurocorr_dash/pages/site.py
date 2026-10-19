@@ -56,14 +56,13 @@ def layout(site=None, **_query):
 def show_site(trace_set, method):
     sites = data.sites()
     label = data.site_label(sites[sites["trace_set"] == trace_set].iloc[0])
-    try:
-        R, xyz = data.correlation_matrix(trace_set, method)
-    except Exception:
-        R, xyz = data.correlation_matrix(trace_set, 0)
-        method = 0
-    return (
-        figures.correlation_heatmap(
-            R, f"{label[0].upper()}{label[1:]}: {data.METHOD_NAMES[method]} correlations"
-        ),
-        figures.cell_positions(xyz, f"{label[0].upper()}{label[1:]}: {len(xyz)} active cells"),
+    label = f"{label[0].upper()}{label[1:]}"
+    title = f"{label}: {data.METHOD_NAMES[method]} correlations"
+    R = data.estimate(trace_set, method)
+    xyz = data.active_cells(trace_set)
+    heatmap = (
+        figures.correlation_heatmap(R, title)
+        if R is not None
+        else figures.unavailable(title, "Not computed yet for this site")
     )
+    return heatmap, figures.cell_positions(xyz, f"{label}: {len(xyz)} active cells")

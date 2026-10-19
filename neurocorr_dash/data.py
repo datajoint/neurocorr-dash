@@ -94,10 +94,24 @@ def progress() -> pd.DataFrame:
     return methods[["method", "name", "regularization", "computed", "expected"]]
 
 
+def estimate(trace_set: int, method: int = 0) -> np.ndarray | None:
+    """A correlation set's correlation matrix estimated from all trials, or None if not computed yet."""
+    rows = covest().CovMatrix & {"trace_set": trace_set, "method": method, "k": 1, "nfolds": 1}
+    return np.asarray(rows.fetch1("corr_matrix")) if rows else None
+
+
+def active_cells(trace_set: int) -> np.ndarray:
+    """The positions of a correlation set's active cells."""
+    c = covest()
+    xyz, selection = (c.TrialTraceSet * c.CellSelection & {"trace_set": trace_set}).fetch1(
+        "cell_xyz", "selection"
+    )
+    return np.asarray(xyz)[np.asarray(selection, dtype=bool)]
+
+
 def correlation_matrix(trace_set: int, method: int = 0) -> tuple[np.ndarray, np.ndarray]:
     """A correlation set's correlation matrix from all trials, and the positions of its active cells."""
-    c = covest()
-    key = {"trace_set": trace_set}
-    R = (c.CovMatrix & key & {"method": method, "k": 1, "nfolds": 1}).fetch1("corr_matrix")
-    xyz, selection = (c.TrialTraceSet * c.CellSelection & key).fetch1("cell_xyz", "selection")
-    return np.asarray(R), np.asarray(xyz)[np.asarray(selection, dtype=bool)]
+    R = estimate(trace_set, method)
+    if R is None:
+        raise LookupError(f"method {method} is not computed yet for trace set {trace_set}")
+    return R, active_cells(trace_set)

@@ -41,11 +41,15 @@ def sites_scatter(sites: pd.DataFrame) -> go.Figure:
     return fig
 
 
-def correlation_heatmap(R: np.ndarray, title: str) -> go.Figure:
-    """A correlation matrix with its diagonal blanked, on a symmetric color scale."""
+# One color scale for every estimate, as the paper's Fig 3 E: an estimator that shrinks the
+# correlations then looks paler, where a scale fitted to each matrix would draw them alike.
+CORRELATION_LIMIT = 0.25
+
+
+def correlation_heatmap(R: np.ndarray, title: str, limit: float = CORRELATION_LIMIT) -> go.Figure:
+    """A correlation matrix with its diagonal blanked, on a fixed symmetric color scale."""
     off = np.array(R, dtype=float)
     np.fill_diagonal(off, np.nan)
-    limit = float(np.nanpercentile(np.abs(off), 99)) or 0.1
     fig = go.Figure(
         go.Heatmap(
             z=off,
@@ -53,13 +57,23 @@ def correlation_heatmap(R: np.ndarray, title: str) -> go.Figure:
             reversescale=True,
             zmin=-limit,
             zmax=limit,
-            colorbar={"title": "r"},
+            colorbar={"title": "r", "tickvals": [-limit, 0, limit]},
             hovertemplate="cells %{y}, %{x}<br>r = %{z:.3f}<extra></extra>",
         )
     )
     fig.update_layout(**LAYOUT, title=title, height=520, width=560)
     fig.update_yaxes(autorange="reversed", scaleanchor="x", title="cell")
     fig.update_xaxes(title="cell")
+    return fig
+
+
+def unavailable(title: str, message: str) -> go.Figure:
+    """An empty figure that says why there is nothing to draw."""
+    fig = go.Figure()
+    fig.add_annotation(text=message, showarrow=False, font={"color": MUTED, "size": 15})
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False)
+    fig.update_layout(**LAYOUT, title=title, height=520, width=560)
     return fig
 
 

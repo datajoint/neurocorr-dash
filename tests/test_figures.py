@@ -11,6 +11,19 @@ def test_site_label():
     assert data.site_label(row) == "session 8, site 2031"
 
 
+def test_heatmap_scale_is_fixed():
+    # a matrix shrunk toward zero must look paler, not be rescaled to look the same
+    R = np.eye(5) + 0.2 * (1 - np.eye(5))
+    shrunk = np.eye(5) + 0.1 * (1 - np.eye(5))
+    a, b = figures.correlation_heatmap(R, "a"), figures.correlation_heatmap(shrunk, "b")
+    assert a.data[0].zmax == b.data[0].zmax == figures.CORRELATION_LIMIT
+
+
+def test_unavailable_says_why():
+    fig = figures.unavailable("diag", "Not computed yet for this site")
+    assert fig.layout.annotations[0].text == "Not computed yet for this site"
+
+
 def test_heatmap_blanks_the_diagonal():
     R = np.eye(5) + 0.1 * (1 - np.eye(5))
     fig = figures.correlation_heatmap(R, "test")
