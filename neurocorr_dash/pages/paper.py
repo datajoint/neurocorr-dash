@@ -5,7 +5,7 @@ from neurocorr_dash import data, figures
 
 dash.register_page(__name__, path="/figures", name="Figures", order=4)
 
-EXAMPLE_SITE = 3453748112031  # the paper's example site (Fig 3)
+EXAMPLE_SITE = 2031  # the paper's example site (Fig 3), by its number in the paper
 
 
 def layout(**_query):
@@ -15,18 +15,19 @@ def layout(**_query):
         return html.P(f"The pipeline is not available: {error}")
     ready = sites[sites["analyzed"] & sites["mean_corr"].notna()]
     options = [
-        {"label": f"site {row.site} ({row.ncells} cells)", "value": int(row.aod_scan_start_time)}
+        {"label": f"{data.site_label(row)}, {row.ncells} cells", "value": int(row.trace_set)}
         for row in ready.itertuples()
     ]
-    values = {o["value"] for o in options}
-    value = EXAMPLE_SITE if EXAMPLE_SITE in values else next(iter(values), None)
+    example = ready.loc[ready["paper_site"] == EXAMPLE_SITE, "trace_set"]
+    value = int(example.iloc[0]) if len(example) else next((o["value"] for o in options), None)
     return html.Div(
         [
             html.H1("Figures"),
             html.P(
                 "The figures of Yatsenko et al. (2015), drawn from the pipeline's results. "
                 "Fig 3 E and F: the sample noise correlations of one site (method 0, all trials) "
-                "and their distribution. The paper's example site is 2031 (292 cells, mean 0.020).",
+                "and their distribution. The paper's example site is 2031 (292 cells, mean 0.020), "
+                "session 8, site 4 here.",
                 className="lede",
             ),
             html.Div(
@@ -39,7 +40,8 @@ def layout(**_query):
 
 
 @callback(Output("fig3e", "figure"), Output("fig3f", "figure"), Input("figure-site", "value"))
-def show_fig3(aod_scan_start_time):
-    R, _ = data.correlation_matrix(aod_scan_start_time, 0)
-    site = data.site_label(aod_scan_start_time)
+def show_fig3(trace_set):
+    R, _ = data.correlation_matrix(trace_set, 0)
+    sites = data.sites()
+    site = data.site_label(sites[sites["trace_set"] == trace_set].iloc[0])
     return figures.fig3e(R, site), figures.fig3f(R, site)

@@ -35,17 +35,27 @@ def covest():
     return dj.VirtualModule("covest", PREFIX + "covest")
 
 
-def site_label(aod_scan_start_time: int) -> int:
-    """The site number used in the original code and figures: the scan's start time mod 10000."""
+def paper_site(aod_scan_start_time: int) -> int:
+    """The site's number in the original code and figures: its scan start time mod 10000."""
     return int(aod_scan_start_time) % 10000
 
 
+def site_name(session: int, site: int) -> str:
+    """A site's short name in figures: its session and its number within it, as in "8-4"."""
+    return f"{int(session)}-{int(site)}"
+
+
+def site_label(row) -> str:
+    """A site as the dashboard names it: its session and number, and its number in the paper."""
+    return f"session {row.session}, site {row.site} ({row.paper_site} in the paper)"
+
+
 def sites() -> pd.DataFrame:
-    """One row per correlation set: the cells recorded and kept, and the mean sample correlation."""
+    """One row per correlation set: its site, the cells recorded and kept, and the mean sample correlation."""
     c = covest()
     rows = (
-        (c.TrialTraceSet & {"high_repeats": True})
-        .proj("nneurons", "ndirs", "bin_ms")
+        ((c.TrialTraceSet & {"high_repeats": True}) * c.Site)
+        .proj("session", "site", "nneurons", "ndirs", "bin_ms", "aod_scan_start_time")
         .to_pandas()
         .reset_index()
     )
@@ -53,11 +63,12 @@ def sites() -> pd.DataFrame:
     rows = rows.merge(active, how="left")
     sample = c.CovMatrix & {"method": 0, "k": 1, "nfolds": 1}
     keys, matrices = sample.to_arrays("corr_matrix", include_key=True)
-    mean_corr = {k["aod_scan_start_time"]: mean_offdiagonal(np.asarray(R)) for k, R in zip(keys, matrices)}
-    rows["mean_corr"] = rows["aod_scan_start_time"].map(mean_corr)
-    rows["site"] = rows["aod_scan_start_time"].map(site_label)
+    mean_corr = {k["trace_set"]: mean_offdiagonal(np.asarray(R)) for k, R in zip(keys, matrices)}
+    rows["mean_corr"] = rows["trace_set"].map(mean_corr)
+    rows["paper_site"] = rows["aod_scan_start_time"].map(paper_site)
+    rows["name"] = [site_name(a, b) for a, b in zip(rows["session"], rows["site"])]
     rows["analyzed"] = rows["ncells"] > 100
-    return rows.sort_values("aod_scan_start_time").reset_index(drop=True)
+    return rows.sort_values(["session", "site"]).reset_index(drop=True)
 
 
 def mean_offdiagonal(R: np.ndarray) -> float:
@@ -67,14 +78,16 @@ def mean_offdiagonal(R: np.ndarray) -> float:
 def validation_losses() -> pd.DataFrame:
     """Mean validation loss over the 10 folds, per site and method, for complete sites only."""
     c = covest()
-    cv = (c.CovMatrix & "nfolds = 10").proj("cv_loss").to_pandas().reset_index()
+    cv = ((c.CovMatrix & "nfolds = 10") * c.TrialTraceSet.proj("session", "site")).proj(
+        "cv_loss", "session", "site"
+    )
+    cv = cv.to_pandas().reset_index()
     if cv.empty:
-        return pd.DataFrame(columns=["aod_scan_start_time", "method", "cv_loss", "folds", "site"])
-    grouped = cv.groupby(["aod_scan_start_time", "method"])["cv_loss"]
+        return pd.DataFrame(columns=["site", "method", "cv_loss", "folds"])
+    cv["site"] = [site_name(a, b) for a, b in zip(cv["session"], cv["site"])]
+    grouped = cv.groupby(["site", "method"])["cv_loss"]
     losses = grouped.mean().to_frame("cv_loss").join(grouped.count().to_frame("folds")).reset_index()
-    losses = losses[losses["folds"] == 10]
-    losses["site"] = losses["aod_scan_start_time"].map(site_label)
-    return losses
+    return losses[losses["folds"] == 10]
 
 
 def progress() -> pd.DataFrame:
@@ -92,10 +105,10 @@ def progress() -> pd.DataFrame:
     return methods[["method", "name", "regularization", "computed", "expected"]]
 
 
-def correlation_matrix(aod_scan_start_time: int, method: int = 0) -> tuple[np.ndarray, np.ndarray]:
-    """A site's correlation matrix from all trials, and the positions of its active cells."""
+def correlation_matrix(trace_set: int, method: int = 0) -> tuple[np.ndarray, np.ndarray]:
+    """A correlation set's correlation matrix from all trials, and the positions of its active cells."""
     c = covest()
-    key = {"aod_scan_start_time": aod_scan_start_time}
+    key = {"trace_set": trace_set}
     R = (c.CovMatrix & key & {"method": method, "k": 1, "nfolds": 1}).fetch1("corr_matrix")
     xyz, selection = (c.TrialTraceSet * c.CellSelection & key).fetch1("cell_xyz", "selection")
     return np.asarray(R), np.asarray(xyz)[np.asarray(selection, dtype=bool)]

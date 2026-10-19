@@ -28,7 +28,7 @@ def sites_scatter(sites: pd.DataFrame) -> go.Figure:
             y=analyzed["mean_corr"],
             mode="markers",
             marker={"size": 9, "color": ACCENT},
-            text=[f"site {s}" for s in analyzed["site"]],
+            text=[f"site {s}" for s in analyzed["name"]],
             hovertemplate="%{text}<br>%{x} cells<br>mean correlation %{y:.4f}<extra></extra>",
         )
     )
@@ -125,7 +125,7 @@ def loss_differences(losses: pd.DataFrame, reference: int) -> go.Figure:
     return fig
 
 
-def fig3e(R: np.ndarray, site: int) -> go.Figure:
+def fig3e(R: np.ndarray, label: str) -> go.Figure:
     """Fig 3 E: the sample noise-correlation matrix of a site, on a fixed ±0.25 scale."""
     off = np.array(R, dtype=float)
     np.fill_diagonal(off, np.nan)
@@ -143,15 +143,13 @@ def fig3e(R: np.ndarray, site: int) -> go.Figure:
             hovertemplate="cells %{y} and %{x}<br>r = %{z:.3f}<extra></extra>",
         )
     )
-    fig.update_layout(
-        **LAYOUT, title=f"E. Sample correlations, site {site} ({n} cells)", height=520, width=560
-    )
+    fig.update_layout(**LAYOUT, title=f"E. Sample correlations, {label} ({n} cells)", height=520, width=560)
     fig.update_yaxes(autorange="reversed", scaleanchor="x", title="cell number")
     fig.update_xaxes(title="cell number")
     return fig
 
 
-def fig3f(R: np.ndarray, site: int) -> go.Figure:
+def fig3f(R: np.ndarray, label: str) -> go.Figure:
     """Fig 3 F: the distribution of a site's pairwise sample correlations, with its mean."""
     values = np.asarray(R)[np.triu_indices_from(np.asarray(R), 1)]
     mean = float(values.mean())

@@ -5,24 +5,26 @@ from neurocorr_dash import data, figures
 
 dash.register_page(__name__, path="/site", name="Site", order=2)
 
-EXAMPLE_SITE = 3453748112031  # the paper's example site (Fig 3)
+EXAMPLE_SITE = 2031  # the paper's example site (Fig 3), by its number in the paper
 
 
-def layout(scan=None, **_query):
+def layout(site=None, **_query):
     try:
         sites = data.sites()
     except Exception as error:
         return html.P(f"The pipeline is not available: {error}")
     analyzed = sites[sites["analyzed"] & sites["mean_corr"].notna()]
     options = [
-        {"label": f"site {row.site} ({row.ncells} cells)", "value": int(row.aod_scan_start_time)}
+        {"label": f"{data.site_label(row)}, {row.ncells} cells", "value": int(row.trace_set)}
         for row in analyzed.itertuples()
     ]
-    values = {o["value"] for o in options}
+    # ?site=8-4: session 8, site 4
+    by_name = dict(zip(analyzed["name"], analyzed["trace_set"]))
+    example = analyzed.loc[analyzed["paper_site"] == EXAMPLE_SITE, "trace_set"]
     value = (
-        int(scan)
-        if scan and int(scan) in values
-        else (EXAMPLE_SITE if EXAMPLE_SITE in values else next(iter(values), None))
+        int(by_name[site])
+        if site in by_name
+        else (int(example.iloc[0]) if len(example) else next(iter(by_name.values()), None))
     )
     return html.Div(
         [
@@ -51,14 +53,17 @@ def layout(scan=None, **_query):
     Input("site-choice", "value"),
     Input("method-choice", "value"),
 )
-def show_site(aod_scan_start_time, method):
-    label = data.site_label(aod_scan_start_time)
+def show_site(trace_set, method):
+    sites = data.sites()
+    label = data.site_label(sites[sites["trace_set"] == trace_set].iloc[0])
     try:
-        R, xyz = data.correlation_matrix(aod_scan_start_time, method)
+        R, xyz = data.correlation_matrix(trace_set, method)
     except Exception:
-        R, xyz = data.correlation_matrix(aod_scan_start_time, 0)
+        R, xyz = data.correlation_matrix(trace_set, 0)
         method = 0
     return (
-        figures.correlation_heatmap(R, f"Site {label}: {data.METHOD_NAMES[method]} correlations"),
-        figures.cell_positions(xyz, f"Site {label}: {len(xyz)} active cells"),
+        figures.correlation_heatmap(
+            R, f"{label[0].upper()}{label[1:]}: {data.METHOD_NAMES[method]} correlations"
+        ),
+        figures.cell_positions(xyz, f"{label[0].upper()}{label[1:]}: {len(xyz)} active cells"),
     )
