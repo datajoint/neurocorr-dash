@@ -84,11 +84,11 @@ def progress() -> pd.DataFrame:
     c = covest()
     done = c.CovMatrix.proj().to_pandas().reset_index().groupby("method").size()
     analyzed = (c.TrialTraceSet * c.CellSelection & "ncells > 100").proj("ndirs").to_pandas()
-    methods = c.Method.proj("regularization", "condition_idx").to_pandas().reset_index()
+    methods = c.Method.proj("regularization", "direction").to_pandas().reset_index()
     methods["name"] = methods["method"].map(METHOD_NAMES)
     methods["computed"] = methods["method"].map(done).fillna(0).astype(int)
     sites_per_method = np.where(
-        methods["condition_idx"] == 0, len(analyzed), int((analyzed["ndirs"] == 2).sum())
+        methods["direction"] == 0, len(analyzed), int((analyzed["ndirs"] == 2).sum())
     )
     methods["expected"] = 11 * sites_per_method
     return methods[["method", "name", "regularization", "computed", "expected"]]
