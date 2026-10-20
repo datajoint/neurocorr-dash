@@ -27,7 +27,7 @@ def layout(**_query):
                 "The figures of Yatsenko et al. (2015), drawn from the pipeline's results. "
                 "Fig 3 E and F: the sample noise correlations of one site (method 0, all trials) "
                 "and their distribution. The paper's example site (292 cells, mean 0.020) is site 2031, "
-                "as the original code numbers it, in session 8.",
+                "as the original code numbers it, in session 8828.",
                 className="lede",
             ),
             html.Div(
