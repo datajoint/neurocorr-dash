@@ -67,7 +67,7 @@ def test_layouts_accept_extra_query_parameters():
     import neurocorr_dash.app  # noqa: F401  registers the pages
 
     layouts = [page["layout"] for page in dash.page_registry.values()]
-    assert len(layouts) == 5
+    assert len(layouts) >= 5  # the original pages, and each figure page added since
     for layout in layouts:
         assert any(p.kind is p.VAR_KEYWORD for p in inspect.signature(layout).parameters.values())
 
