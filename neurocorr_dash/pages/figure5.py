@@ -132,7 +132,7 @@ def update_figure5(trace_set):
             "E: Decomposition<br>(below: sparse, above: LL<sup>T</sup>)",
             "F: Sparse vs sample comparison"
         ),
-        horizontal_spacing=0.08,
+        horizontal_spacing=0.12,
         vertical_spacing=0.12
     )
     
@@ -145,7 +145,7 @@ def update_figure5(trace_set):
             reversescale=True,
             zmin=-0.1,
             zmax=0.1,
-            colorbar=dict(x=0.31, len=0.4, y=0.75),
+            colorbar=dict(x=0.265, len=0.4, y=0.78),
             hovertemplate="Cell %{y}, %{x}<br>r = %{z:.4f}<extra></extra>"
         ),
         row=1, col=1
@@ -160,10 +160,11 @@ def update_figure5(trace_set):
         go.Histogram2d(
             x=c0_upper,
             y=c1_upper,
-            nbinsx=50,
-            nbinsy=50,
+            # bins over the range drawn, ±0.1
+            xbins=dict(start=-0.1, end=0.1, size=0.004),
+            ybins=dict(start=-0.1, end=0.1, size=0.004),
             colorscale="Viridis",
-            colorbar=dict(x=0.645, len=0.4, y=0.75),
+            colorbar=dict(x=0.64, len=0.4, y=0.78),
             hovertemplate="Sample: %{x:.4f}<br>Sparse+latent: %{y:.4f}<br>Count: %{z}<extra></extra>"
         ),
         row=1, col=2
@@ -189,7 +190,7 @@ def update_figure5(trace_set):
             reversescale=True,
             zmin=-0.1,
             zmax=0.1,
-            colorbar=dict(x=0.98, len=0.4, y=0.75),
+            colorbar=dict(x=1.01, len=0.4, y=0.78),
             hovertemplate="Cell %{y}, %{x}<br>partial r = %{z:.4f}<extra></extra>"
         ),
         row=1, col=3
@@ -203,10 +204,11 @@ def update_figure5(trace_set):
         go.Histogram2d(
             x=pc0_upper,
             y=pc1_upper,
-            nbinsx=50,
-            nbinsy=50,
+            # bins over the range drawn, ±0.1
+            xbins=dict(start=-0.1, end=0.1, size=0.004),
+            ybins=dict(start=-0.1, end=0.1, size=0.004),
             colorscale="Viridis",
-            colorbar=dict(x=0.31, len=0.4, y=0.25),
+            colorbar=dict(x=0.265, len=0.4, y=0.22),
             hovertemplate="Sample: %{x:.4f}<br>Regularized: %{y:.4f}<br>Count: %{z}<extra></extra>"
         ),
         row=2, col=1
@@ -232,7 +234,7 @@ def update_figure5(trace_set):
             reversescale=True,
             zmin=-0.1,
             zmax=0.1,
-            colorbar=dict(x=0.645, len=0.4, y=0.25),
+            colorbar=dict(x=0.64, len=0.4, y=0.22),
             hovertemplate="Cell %{y}, %{x}<br>partial r = %{z:.4f}<extra></extra>"
         ),
         row=2, col=2
@@ -245,10 +247,11 @@ def update_figure5(trace_set):
         go.Histogram2d(
             x=c0_upper,
             y=pcs_upper,
-            nbinsx=50,
-            nbinsy=50,
+            # bins over the range drawn, ±0.1
+            xbins=dict(start=-0.1, end=0.1, size=0.004),
+            ybins=dict(start=-0.1, end=0.1, size=0.004),
             colorscale="Viridis",
-            colorbar=dict(x=0.98, len=0.4, y=0.25),
+            colorbar=dict(x=1.01, len=0.4, y=0.22),
             hovertemplate="Sample r: %{x:.4f}<br>Sparse partial r: %{y:.4f}<br>Count: %{z}<extra></extra>"
         ),
         row=2, col=3
@@ -265,25 +268,21 @@ def update_figure5(trace_set):
         row=2, col=3
     )
     
-    # Update all x and y axes
-    for i in range(1, 7):
-        row = (i - 1) // 3 + 1
-        col = (i - 1) % 3 + 1
-        
-        if col == 1:  # Heatmaps
-            fig.update_xaxes(title_text="Cell", row=row, col=col)
-            fig.update_yaxes(title_text="Cell", row=row, col=col, autorange="reversed")
-        else:  # Scatter/histogram plots
-            fig.update_xaxes(range=[-0.1, 0.1], row=row, col=col)
-            fig.update_yaxes(range=[-0.1, 0.1], row=row, col=col)
-    
+    # matrices (A, C, E) by cell index, row 0 on top; 2D histograms (B, D, F) over ±0.1
+    for row, col in [(1, 1), (1, 3), (2, 2)]:
+        fig.update_xaxes(title_text="Cell", row=row, col=col)
+        fig.update_yaxes(title_text="Cell", autorange="reversed", row=row, col=col)
+    for row, col in [(1, 2), (2, 1), (2, 3)]:
+        fig.update_xaxes(range=[-0.1, 0.1], row=row, col=col)
+        fig.update_yaxes(range=[-0.1, 0.1], row=row, col=col)
+
+    # room on the right for the last column's colorbars
     fig.update_layout(
-        **LAYOUT,
-        title=f"Session {session}, Site {site} (n={ncells} cells)",
+        **{**LAYOUT, "margin": {**LAYOUT["margin"], "t": 60, "r": 70}},
         height=900,
-        showlegend=False
+        showlegend=False,
     )
-    
+
     # Statistics display
     stats = html.Div([
         html.H3("Decomposition Statistics"),
