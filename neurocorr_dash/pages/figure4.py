@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 from neurocorr_dash import data
 from neurocorr_dash.figures import LAYOUT, ACCENT, MUTED
 
-dash.register_page(__name__, path="/figure4", name="Figure 4", order=4)
+dash.register_page(__name__, path="/figure4", name="Figure 4", order=4.4)
 
 
 def layout(**_query):

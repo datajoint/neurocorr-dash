@@ -3,7 +3,7 @@ from dash import Input, Output, callback, dcc, html
 
 from neurocorr_dash import data, figures
 
-dash.register_page(__name__, path="/figures", name="Figures", order=4)
+dash.register_page(__name__, path="/figures", name="Figure 3", order=4)
 
 EXAMPLE_SITE = 2031  # the example site of the paper's Fig 3, numbered as the original code numbers it
 
