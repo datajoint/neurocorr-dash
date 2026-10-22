@@ -14,8 +14,8 @@ def layout(**_query):
     try:
         c = data.covest()
         # Find sites with both method 0 and method 100 computed
-        method0_sites = (c.CovMatrix & "method = 0" & "k = 1" & "nfolds = 1").proj("trace_set").to_pandas()
-        method100_sites = (c.CovMatrix & "method = 100" & "k = 1" & "nfolds = 1").proj("trace_set").to_pandas()
+        method0_sites = (c.CovMatrix & "method = 0" & "k = 1" & "nfolds = 1").proj().to_pandas().reset_index()
+        method100_sites = (c.CovMatrix & "method = 100" & "k = 1" & "nfolds = 1").proj().to_pandas().reset_index()
         available = set(method0_sites["trace_set"]) & set(method100_sites["trace_set"])
         
         if not available:
