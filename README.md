@@ -20,6 +20,12 @@ License.
 | Sites | each correlation set: directions, cells, active cells, and its mean sample correlation |
 | Site | a site's correlation matrix (sample or diag) and the positions of its active cells |
 | Validation | each estimator's cross-validated loss relative to a reference, per site, as in the paper's Fig 4 |
+| Figure 3 | E–F: the sample correlations at the paper's example site (session 8828, site 2031) and their distribution |
+| Figure 4 | each simpler estimator's 10-fold validation loss relative to sparse + latent, across the 27 analyzed sites |
+| Figure 5 | the sparse + latent estimate at the example site: correlations, partial correlations, and its sparse and low-rank components |
+| Figure 6 | across sites: latent units and connectivity against the number of cells; partial against sample correlations; negative interactions |
+| Figure 7 | correlations and connectivity against differences in preferred orientation, lateral distance, and depth, at the five most connected sites |
+| Figure S1 | panel A: the cross-validated loss over the two hyperparameters at the example site, and the chosen values |
 
 The dashboard reads the pipeline's schema from the database with `dj.VirtualModule`, so it does not
 need the pipeline's code installed.
