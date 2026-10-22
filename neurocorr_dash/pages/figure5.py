@@ -132,7 +132,7 @@ def update_figure5(trace_set):
             "E: Decomposition<br>(below: sparse, above: LL<sup>T</sup>)",
             "F: Sparse vs sample comparison"
         ),
-        horizontal_spacing=0.12,
+        horizontal_spacing=0.17,
         vertical_spacing=0.12
     )
     
@@ -145,7 +145,7 @@ def update_figure5(trace_set):
             reversescale=True,
             zmin=-0.1,
             zmax=0.1,
-            colorbar=dict(x=0.265, len=0.4, y=0.78),
+            colorbar=dict(x=0.23, thickness=12, len=0.4, y=0.78),
             hovertemplate="Cell %{y}, %{x}<br>r = %{z:.4f}<extra></extra>"
         ),
         row=1, col=1
@@ -164,7 +164,7 @@ def update_figure5(trace_set):
             xbins=dict(start=-0.1, end=0.1, size=0.004),
             ybins=dict(start=-0.1, end=0.1, size=0.004),
             colorscale="Viridis",
-            colorbar=dict(x=0.64, len=0.4, y=0.78),
+            colorbar=dict(x=0.62, thickness=12, len=0.4, y=0.78),
             hovertemplate="Sample: %{x:.4f}<br>Sparse+latent: %{y:.4f}<br>Count: %{z}<extra></extra>"
         ),
         row=1, col=2
@@ -190,7 +190,7 @@ def update_figure5(trace_set):
             reversescale=True,
             zmin=-0.1,
             zmax=0.1,
-            colorbar=dict(x=1.01, len=0.4, y=0.78),
+            colorbar=dict(x=1.01, thickness=12, len=0.4, y=0.78),
             hovertemplate="Cell %{y}, %{x}<br>partial r = %{z:.4f}<extra></extra>"
         ),
         row=1, col=3
@@ -208,7 +208,7 @@ def update_figure5(trace_set):
             xbins=dict(start=-0.1, end=0.1, size=0.004),
             ybins=dict(start=-0.1, end=0.1, size=0.004),
             colorscale="Viridis",
-            colorbar=dict(x=0.265, len=0.4, y=0.22),
+            colorbar=dict(x=0.23, thickness=12, len=0.4, y=0.22),
             hovertemplate="Sample: %{x:.4f}<br>Regularized: %{y:.4f}<br>Count: %{z}<extra></extra>"
         ),
         row=2, col=1
@@ -234,7 +234,7 @@ def update_figure5(trace_set):
             reversescale=True,
             zmin=-0.1,
             zmax=0.1,
-            colorbar=dict(x=0.64, len=0.4, y=0.22),
+            colorbar=dict(x=0.62, thickness=12, len=0.4, y=0.22),
             hovertemplate="Cell %{y}, %{x}<br>partial r = %{z:.4f}<extra></extra>"
         ),
         row=2, col=2
@@ -251,7 +251,7 @@ def update_figure5(trace_set):
             xbins=dict(start=-0.1, end=0.1, size=0.004),
             ybins=dict(start=-0.1, end=0.1, size=0.004),
             colorscale="Viridis",
-            colorbar=dict(x=1.01, len=0.4, y=0.22),
+            colorbar=dict(x=1.01, thickness=12, len=0.4, y=0.22),
             hovertemplate="Sample r: %{x:.4f}<br>Sparse partial r: %{y:.4f}<br>Count: %{z}<extra></extra>"
         ),
         row=2, col=3
