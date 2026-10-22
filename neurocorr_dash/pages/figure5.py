@@ -269,12 +269,23 @@ def update_figure5(trace_set):
     )
     
     # matrices (A, C, E) by cell index, row 0 on top; 2D histograms (B, D, F) over ±0.1
+    # each panel isometric: y locked to its own x at 1:1, so a matrix stays square
+    def anchor(row, col):
+        n = (row - 1) * 3 + col
+        return "x" if n == 1 else f"x{n}"
+
     for row, col in [(1, 1), (1, 3), (2, 2)]:
-        fig.update_xaxes(title_text="Cell", row=row, col=col)
-        fig.update_yaxes(title_text="Cell", autorange="reversed", row=row, col=col)
+        fig.update_xaxes(title_text="Cell", constrain="domain", row=row, col=col)
+        fig.update_yaxes(
+            title_text="Cell", autorange="reversed", scaleanchor=anchor(row, col),
+            scaleratio=1, constrain="domain", row=row, col=col,
+        )
     for row, col in [(1, 2), (2, 1), (2, 3)]:
-        fig.update_xaxes(range=[-0.1, 0.1], row=row, col=col)
-        fig.update_yaxes(range=[-0.1, 0.1], row=row, col=col)
+        fig.update_xaxes(range=[-0.1, 0.1], constrain="domain", row=row, col=col)
+        fig.update_yaxes(
+            range=[-0.1, 0.1], scaleanchor=anchor(row, col), scaleratio=1,
+            constrain="domain", row=row, col=col,
+        )
 
     # room on the right for the last column's colorbars
     fig.update_layout(
