@@ -22,7 +22,7 @@ def layout(**_query):
     value = int(example.iloc[0]) if len(example) else next((o["value"] for o in options), None)
     return html.Div(
         [
-            html.H1("Figures"),
+            html.H1("Figure 3"),
             html.P(
                 "The figures of Yatsenko et al. (2015), drawn from the pipeline's results. "
                 "Fig 3 E and F: the sample noise correlations of one site (method 0, all trials) "
